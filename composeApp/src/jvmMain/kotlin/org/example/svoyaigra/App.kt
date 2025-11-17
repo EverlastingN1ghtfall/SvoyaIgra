@@ -202,11 +202,6 @@ fun RenderQuestion() {
 @Preview
 fun QuestionSelectionScreen() {
     MaterialTheme {
-        val darkBlue = Color(0xFF3129D6)   // тёмно-синий
-        val lightBlue = Color(0xFF82B1FF)  // светло-синий
-        val darkGray = Color(0xFF2E2E2E)   // тёмно-серый
-        val lightGray = Color(0xFF595959)  // светло-серый
-
         var showQuestion by remember { mutableStateOf(false) }
 
         SimpleBackgroundScreen()
@@ -219,10 +214,11 @@ fun QuestionSelectionScreen() {
                 Button(
                     onClick = { showQuestion = false },
                     modifier = Modifier
-                        .offset(x = (-480).dp, y = (-200).dp)
-                        .padding(bottom = 40.dp)
+                        .absoluteOffset(x = (-480).dp, y = (-240).dp)
                         .width(200.dp)
-                        .height(60.dp),
+                        .height(60.dp)
+                        .border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(0.dp)),
+
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.LightGray,
                         contentColor = MaterialTheme.colorScheme.onBackground
