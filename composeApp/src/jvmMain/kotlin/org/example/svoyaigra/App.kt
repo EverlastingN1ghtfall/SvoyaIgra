@@ -188,7 +188,7 @@ fun ButtonGridWithLabels(
 fun RenderQuestion() {
     Box(modifier = Modifier.fillMaxSize(), ) {
         Text(
-            text = "Здесь будет вопрос",
+            text = "Здесь будет вопрос", // PLACEHOLDER
             fontSize = 36.sp,
             fontFamily = FontFamily.Serif,
             color = Color.Black,
