@@ -13,7 +13,6 @@ fun main() = application {
         title = "Своя Игра",
         state = WindowState(size = DpSize((4 * sizeMult).dp, (3 * sizeMult).dp))
     ) {
-        // MainScreen()
-        QuestionScreen()
+        QuestionSelectionScreen()
     }
 }

@@ -1,7 +1,6 @@
 package org.example.svoyaigra
 
-import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -18,18 +17,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.platform.SystemFont
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.style.TextDecoration
 
 import kotlin.math.max
-
-
-fun changeScreen(questionRow: Int, questionCol: Int) {
-    // TODO: Логика изменения экрана на вопрос с заданным идентификатором
-}
 
 
 @Composable
@@ -194,29 +185,60 @@ fun ButtonGridWithLabels(
 
 
 @Composable
+fun RenderQuestion() {
+    Box(modifier = Modifier.fillMaxSize(), ) {
+        Text(
+            text = "Здесь будет вопрос",
+            fontSize = 36.sp,
+            fontFamily = FontFamily.Serif,
+            color = Color.Black,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
+    }
+}
+
+
+@Composable
 @Preview
-fun QuestionScreen() {
+fun QuestionSelectionScreen() {
     MaterialTheme {
         val darkBlue = Color(0xFF3129D6)   // тёмно-синий
         val lightBlue = Color(0xFF82B1FF)  // светло-синий
         val darkGray = Color(0xFF2E2E2E)   // тёмно-серый
         val lightGray = Color(0xFF595959)  // светло-серый
 
+        var showQuestion by remember { mutableStateOf(false) }
+
         SimpleBackgroundScreen()
-        QuestionLineGrid()
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .drawBehind {
-
-
+        if (showQuestion) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                RenderQuestion()
+                Button(
+                    onClick = { showQuestion = false },
+                    modifier = Modifier
+                        .offset(x = (-480).dp, y = (-200).dp)
+                        .padding(bottom = 40.dp)
+                        .width(200.dp)
+                        .height(60.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.LightGray,
+                        contentColor = MaterialTheme.colorScheme.onBackground
+                    ),
+                    shape = RoundedCornerShape(0.dp)
+                ) {
+                    Text("Назад", fontSize = 24.sp)
                 }
-                .safeContentPadding(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+            }
+        } else {
+            QuestionLineGrid()
             val topics = listOf("Тема 1", "Тема 2", "Тема 3", "Тема 4", "Тема 5", "Тема 6")
-            ButtonGridWithLabels(topics = topics)
+            ButtonGridWithLabels(
+                topics = topics,
+                onClick = { _, _ -> showQuestion = true }
+            )
         }
     }
 }
