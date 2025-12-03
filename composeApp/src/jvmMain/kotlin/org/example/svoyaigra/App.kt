@@ -17,10 +17,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.input.pointer.isPrimaryPressed
+import androidx.compose.ui.input.pointer.isSecondaryPressed
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontFamily
 
 import kotlin.math.max
+import kotlin.text.get
+import kotlin.text.set
 
 
 @Composable
@@ -199,41 +204,132 @@ fun RenderQuestion() {
 
 
 @Composable
+fun TeamScoreBar(
+    modifier: Modifier = Modifier,
+    teamNames: List<String> = listOf("Команда 1", "Команда 2", "Команда 3"),
+    teamScores: List<Int> = listOf(0, 0, 0),
+    onScoreIncrease: (teamIndex: Int) -> Unit = {},
+    onScoreDecrease: (teamIndex: Int) -> Unit = {}
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(225.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 64.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            for (i in 0 until 3) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = teamNames.getOrNull(i) ?: "",
+                        fontSize = 24.sp,
+                        fontFamily = FontFamily.Serif,
+                        color = Color.White
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .width(140.dp)
+                            .height(60.dp)
+                            .border(
+                                width = 4.dp,
+                                color = Color.White,
+                                shape = RoundedCornerShape(0.dp)
+                            )
+                            .padding(4.dp)
+                            .drawBehind { drawRect(Color.Black) }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        val event = awaitPointerEvent()
+                                        val button = event.buttons
+                                        if (button.isPrimaryPressed) {
+                                            onScoreIncrease(i)
+                                        } else if (button.isSecondaryPressed) {
+                                            onScoreDecrease(i)
+                                        }
+                                    }
+                                }
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "${teamScores.getOrNull(i) ?: 0}",
+                            fontSize = 28.sp,
+                            fontFamily = FontFamily.Serif,
+                            color = Color.Yellow
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
 @Preview
 fun QuestionSelectionScreen() {
     MaterialTheme {
         var showQuestion by remember { mutableStateOf(false) }
+        var teamScores by remember { mutableStateOf(listOf(0, 0, 0)) }
 
-        SimpleBackgroundScreen()
-        if (showQuestion) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.BottomCenter
-            ) {
-                RenderQuestion()
-                Button(
-                    onClick = { showQuestion = false },
-                    modifier = Modifier
-                        .absoluteOffset(x = (-480).dp, y = (-240).dp)
-                        .width(200.dp)
-                        .height(60.dp)
-                        .border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(0.dp)),
-
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.LightGray,
-                        contentColor = MaterialTheme.colorScheme.onBackground
-                    ),
-                    shape = RoundedCornerShape(0.dp)
+        Box(modifier = Modifier.fillMaxSize()){
+            SimpleBackgroundScreen()
+            if (showQuestion) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.BottomCenter
                 ) {
-                    Text("Назад", fontSize = 24.sp)
+                    RenderQuestion()
+                    Button(
+                        onClick = { showQuestion = false },
+                        modifier = Modifier
+                            .absoluteOffset(x = (-480).dp, y = (-240).dp)
+                            .width(200.dp)
+                            .height(60.dp)
+                            .border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(0.dp)),
+
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.LightGray,
+                            contentColor = MaterialTheme.colorScheme.onBackground
+                        ),
+                        shape = RoundedCornerShape(0.dp)
+                    ) {
+                        Text("Назад", fontSize = 24.sp)
+                    }
                 }
+            } else {
+                QuestionLineGrid()
+                val topics = listOf("Тема 1", "Тема 2", "Тема 3", "Тема 4", "Тема 5", "Тема 6")
+                ButtonGridWithLabels(
+                    topics = topics,
+                    onClick = { _, _ -> showQuestion = true }
+                )
             }
-        } else {
-            QuestionLineGrid()
-            val topics = listOf("Тема 1", "Тема 2", "Тема 3", "Тема 4", "Тема 5", "Тема 6")
-            ButtonGridWithLabels(
-                topics = topics,
-                onClick = { _, _ -> showQuestion = true }
+            TeamScoreBar(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                teamScores = teamScores,
+                onScoreIncrease = { index ->
+                    teamScores = teamScores.toMutableList().also { list ->
+                        list[index] = list[index] + 100
+                    }
+                },
+                onScoreDecrease = { index ->
+                    teamScores = teamScores.toMutableList().also { list ->
+                        list[index] = list[index] - 100
+                    }
+                }
             )
         }
     }
