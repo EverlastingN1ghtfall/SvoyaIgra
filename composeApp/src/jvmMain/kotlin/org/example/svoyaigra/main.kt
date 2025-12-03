@@ -11,6 +11,7 @@ fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
         title = "Своя Игра",
+        resizable = false,
         state = WindowState(size = DpSize((4 * sizeMult).dp, (3 * sizeMult).dp))
     ) {
         QuestionSelectionScreen()
