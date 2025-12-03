@@ -24,8 +24,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontFamily
 
 import kotlin.math.max
-import kotlin.text.get
-import kotlin.text.set
 
 
 @Composable
@@ -150,37 +148,58 @@ fun ButtonGridWithLabels(
     buttonWidth: Dp = 148.dp,
     buttonHeight: Dp = 106.dp,
     labelWidth: Dp = 445.dp,
-    onClick: (row: Int, col: Int) -> Unit = { _, _ -> }
+    answered: List<Boolean>,
+    onClick: (row: Int, col: Int, index: Int) -> Unit = { _, _, _ -> }
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(bottom = 225.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 225.dp)
     ) {
         for (r in 0 until rows) {
             Row(
-                modifier = Modifier.fillMaxWidth().height(buttonHeight),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(buttonHeight),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = topics.getOrNull(r) ?: "",
-                    modifier = Modifier.width(labelWidth).padding(start = (labelWidth / 2) - 20.dp),
+                    modifier = Modifier
+                        .width(labelWidth)
+                        .padding(start = (labelWidth / 2) - 20.dp),
                     fontSize = 28.sp,
                     fontFamily = FontFamily.Serif,
                     color = Color.Black
                 )
                 for (c in 0 until cols) {
-                    Button(
-                        onClick = { onClick(r, c) },
-                        modifier = Modifier
-                            .width(buttonWidth)
-                            .height(buttonHeight),
-                        shape = RoundedCornerShape(0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Transparent,
-                            contentColor = MaterialTheme.colorScheme.onBackground
-                        ),
-                        contentPadding = PaddingValues(0.dp)
-                    ) {
-                        Text("${100 * (c + 1)}", fontSize = 30.sp, fontFamily = FontFamily.Serif)
+                    val index = r * cols + c
+                    if (answered.getOrNull(index) == true) {
+                        // уже отвеченная клетка: делаем её невидимой и некликабельной
+                        Spacer(
+                            modifier = Modifier
+                                .width(buttonWidth)
+                                .height(buttonHeight)
+                        )
+                    } else {
+                        Button(
+                            onClick = { onClick(r, c, index) },
+                            modifier = Modifier
+                                .width(buttonWidth)
+                                .height(buttonHeight),
+                            shape = RoundedCornerShape(0.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent,
+                                contentColor = MaterialTheme.colorScheme.onBackground
+                            ),
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Text(
+                                "${100 * (c + 1)}",
+                                fontSize = 30.sp,
+                                fontFamily = FontFamily.Serif
+                            )
+                        }
                     }
                 }
             }
@@ -283,6 +302,9 @@ fun QuestionSelectionScreen() {
     MaterialTheme {
         var showQuestion by remember { mutableStateOf(false) }
         var teamScores by remember { mutableStateOf(listOf(0, 0, 0)) }
+        val rows = 6
+        val cols = 5
+        var answered by remember { mutableStateOf(List(rows * cols) { false }) }
 
         Box(modifier = Modifier.fillMaxSize()){
             SimpleBackgroundScreen()
@@ -314,7 +336,18 @@ fun QuestionSelectionScreen() {
                 val topics = listOf("Тема 1", "Тема 2", "Тема 3", "Тема 4", "Тема 5", "Тема 6")
                 ButtonGridWithLabels(
                     topics = topics,
-                    onClick = { _, _ -> showQuestion = true }
+                    rows = rows,
+                    cols = cols,
+                    answered = answered,
+                    onClick = { row, col, index ->
+                        // показываем вопрос
+                        showQuestion = true
+                        // помечаем клетку как отвеченную
+                        answered = answered.toMutableList().also { list ->
+                            list[index] = true
+                        }
+                        // здесь же можно запомнить, за сколько очков был вопрос и кому их дать
+                    }
                 )
             }
             TeamScoreBar(
