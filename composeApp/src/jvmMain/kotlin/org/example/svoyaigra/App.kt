@@ -22,10 +22,13 @@ import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontFamily
-
 import kotlin.math.max
 
-
+/**
+ * Фоновый экран с радиальным синим градиентом и нижней серой панелью.
+ *
+ * Используется как общий фон для экрана выбора вопросов.
+ */
 @Composable
 fun SimpleBackgroundScreen() {
     val darkBlue = Color(0xFF3129D6)
@@ -68,78 +71,101 @@ fun SimpleBackgroundScreen() {
     )
 }
 
-
+/**
+ * Рисует сетку линий для ячеек вопросов.
+ *
+ * Линии используются как визуальные границы между темами и стоимостью вопросов.
+ */
 @Composable
 fun QuestionLineGrid() {
-    Box(modifier = Modifier.fillMaxSize().drawBehind {
-        val rectHeight = 225f
-        val verticalMargin = (size.height - rectHeight) / 6f
-        drawLine(
-            color = Color.White,
-            strokeWidth = 2f,
-            start = Offset(0f, verticalMargin * 1f),
-            end = Offset(size.width, verticalMargin * 1f)
-        )
-        drawLine(
-            color = Color.White,
-            strokeWidth = 2f,
-            start = Offset(0f, verticalMargin * 2f),
-            end = Offset(size.width, verticalMargin * 2f)
-        )
-        drawLine(
-            color = Color.White,
-            strokeWidth = 2f,
-            start = Offset(0f, verticalMargin * 3f),
-            end = Offset(size.width, verticalMargin * 3f)
-        )
-        drawLine(
-            color = Color.White,
-            strokeWidth = 2f,
-            start = Offset(0f, verticalMargin * 4f),
-            end = Offset(size.width, verticalMargin * 4f)
-        )
-        drawLine(
-            color = Color.White,
-            strokeWidth = 2f,
-            start = Offset(0f, verticalMargin * 5f),
-            end = Offset(size.width, verticalMargin * 5f)
-        )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .drawBehind {
+                val rectHeight = 225f
+                val verticalMargin = (size.height - rectHeight) / 6f
+                drawLine(
+                    color = Color.White,
+                    strokeWidth = 2f,
+                    start = Offset(0f, verticalMargin * 1f),
+                    end = Offset(size.width, verticalMargin * 1f)
+                )
+                drawLine(
+                    color = Color.White,
+                    strokeWidth = 2f,
+                    start = Offset(0f, verticalMargin * 2f),
+                    end = Offset(size.width, verticalMargin * 2f)
+                )
+                drawLine(
+                    color = Color.White,
+                    strokeWidth = 2f,
+                    start = Offset(0f, verticalMargin * 3f),
+                    end = Offset(size.width, verticalMargin * 3f)
+                )
+                drawLine(
+                    color = Color.White,
+                    strokeWidth = 2f,
+                    start = Offset(0f, verticalMargin * 4f),
+                    end = Offset(size.width, verticalMargin * 4f)
+                )
+                drawLine(
+                    color = Color.White,
+                    strokeWidth = 2f,
+                    start = Offset(0f, verticalMargin * 5f),
+                    end = Offset(size.width, verticalMargin * 5f)
+                )
 
-        val horizontalMargin = size.width / 8f
-        drawLine(
-            color = Color.White,
-            strokeWidth = 2f,
-            start = Offset(horizontalMargin * 3f, 0f),
-            end = Offset(horizontalMargin * 3f, size.height - rectHeight)
-        )
-        drawLine(
-            color = Color.White,
-            strokeWidth = 2f,
-            start = Offset(horizontalMargin * 4f, 0f),
-            end = Offset(horizontalMargin * 4f, size.height - rectHeight)
-        )
-        drawLine(
-            color = Color.White,
-            strokeWidth = 2f,
-            start = Offset(horizontalMargin * 5f, 0f),
-            end = Offset(horizontalMargin * 5f, size.height - rectHeight)
-        )
-        drawLine(
-            color = Color.White,
-            strokeWidth = 2f,
-            start = Offset(horizontalMargin * 6f, 0f),
-            end = Offset(horizontalMargin * 6f, size.height - rectHeight)
-        )
-        drawLine(
-            color = Color.White,
-            strokeWidth = 2f,
-            start = Offset(horizontalMargin * 7f, 0f),
-            end = Offset(horizontalMargin * 7f, size.height - rectHeight)
-        )
-    })
+                val horizontalMargin = size.width / 8f
+                drawLine(
+                    color = Color.White,
+                    strokeWidth = 2f,
+                    start = Offset(horizontalMargin * 3f, 0f),
+                    end = Offset(horizontalMargin * 3f, size.height - rectHeight)
+                )
+                drawLine(
+                    color = Color.White,
+                    strokeWidth = 2f,
+                    start = Offset(horizontalMargin * 4f, 0f),
+                    end = Offset(horizontalMargin * 4f, size.height - rectHeight)
+                )
+                drawLine(
+                    color = Color.White,
+                    strokeWidth = 2f,
+                    start = Offset(horizontalMargin * 5f, 0f),
+                    end = Offset(horizontalMargin * 5f, size.height - rectHeight)
+                )
+                drawLine(
+                    color = Color.White,
+                    strokeWidth = 2f,
+                    start = Offset(horizontalMargin * 6f, 0f),
+                    end = Offset(horizontalMargin * 6f, size.height - rectHeight)
+                )
+                drawLine(
+                    color = Color.White,
+                    strokeWidth = 2f,
+                    start = Offset(horizontalMargin * 7f, 0f),
+                    end = Offset(horizontalMargin * 7f, size.height - rectHeight)
+                )
+            }
+    )
 }
 
-
+/**
+ * Сетка кнопок с подписями тем слева.
+ *
+ * Каждая строка соответствует теме, а каждый столбец \- стоимости вопроса.
+ *
+ * @param topics список названий тем, по одной на каждую строку
+ * @param rows количество строк в сетке
+ * @param cols количество столбцов в сетке
+ * @param buttonWidth ширина кнопки вопроса
+ * @param buttonHeight высота кнопки вопроса
+ * @param labelWidth ширина области подписи темы слева
+ * @param answered список флагов, отмечающий уже выбранные (отвеченные) вопросы;
+ * индекс считается как `row \* cols + col`
+ * @param onClick обработчик нажатия на кнопку вопроса
+ * (`row`, `col`, `index` в общем списке вопросов)
+ */
 @Composable
 fun ButtonGridWithLabels(
     topics: List<String>,
@@ -207,10 +233,14 @@ fun ButtonGridWithLabels(
     }
 }
 
-
+/**
+ * Компонент для отображения текста вопроса.
+ *
+ * Сейчас использует заглушку; предполагается замена на реальный текст вопроса.
+ */
 @Composable
 fun RenderQuestion() {
-    Box(modifier = Modifier.fillMaxSize(), ) {
+    Box(modifier = Modifier.fillMaxSize()) {
         Text(
             text = "Здесь будет вопрос", // PLACEHOLDER
             fontSize = 36.sp,
@@ -221,7 +251,17 @@ fun RenderQuestion() {
     }
 }
 
-
+/**
+ * Панель с очками команд в нижней части экрана.
+ *
+ * Поддерживает изменение счета левой и правой кнопкой мыши по каждой ячейке.
+ *
+ * @param modifier модификатор для внешнего контейнера панели
+ * @param teamNames список названий команд (ожидается 3 элемента)
+ * @param teamScores текущие очки команд (по индексу команды)
+ * @param onScoreIncrease коллбэк увеличения счета команды по индексу
+ * @param onScoreDecrease коллбэк уменьшения счета команды по индексу
+ */
 @Composable
 fun TeamScoreBar(
     modifier: Modifier = Modifier,
@@ -295,7 +335,17 @@ fun TeamScoreBar(
     }
 }
 
-
+/**
+ * Экран выбора вопросов игры.
+ *
+ * Содержит:
+ * - фон,
+ * - сетку линий и кнопок вопросов по темам,
+ * - экран отображения вопроса,
+ * - панель очков команд.
+ *
+ * Состояние экрана (показ вопроса, отвеченные ячейки, очки) хранится в `remember`\-переменных.
+ */
 @Composable
 @Preview
 fun QuestionSelectionScreen() {
@@ -306,7 +356,7 @@ fun QuestionSelectionScreen() {
         val cols = 5
         var answered by remember { mutableStateOf(List(rows * cols) { false }) }
 
-        Box(modifier = Modifier.fillMaxSize()){
+        Box(modifier = Modifier.fillMaxSize()) {
             SimpleBackgroundScreen()
             if (showQuestion) {
                 Box(
@@ -320,8 +370,11 @@ fun QuestionSelectionScreen() {
                             .absoluteOffset(x = (-480).dp, y = (-240).dp)
                             .width(200.dp)
                             .height(60.dp)
-                            .border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(0.dp)),
-
+                            .border(
+                                width = 2.dp,
+                                color = Color.Black,
+                                shape = RoundedCornerShape(0.dp)
+                            ),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.LightGray,
                             contentColor = MaterialTheme.colorScheme.onBackground
@@ -339,7 +392,7 @@ fun QuestionSelectionScreen() {
                     rows = rows,
                     cols = cols,
                     answered = answered,
-                    onClick = { row, col, index ->
+                    onClick = { _, _, index ->
                         // показываем вопрос
                         showQuestion = true
                         // помечаем клетку как отвеченную

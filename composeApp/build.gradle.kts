@@ -5,11 +5,14 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    id("org.jetbrains.dokka") version "1.9.20"
 }
 
 kotlin {
-    jvm()
-    
+    jvmToolchain(17)
+    jvm() {
+        withJava()
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -42,4 +45,15 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
+}
+
+tasks.dokkaHtml {
+    dokkaSourceSets.configureEach {
+        // укажем KMP sourceSet, чтобы точно был jvmMain
+        perPackageOption {
+            matchingRegex.set("org.example.svoyaigra.*")
+            suppress.set(false)
+        }
+    }
+    outputDirectory.set(buildDir.resolve("dokka"))
 }
