@@ -221,14 +221,40 @@ fun QuestionSelectionScreen(game: Game) {
     var currentQuestion by remember { mutableStateOf<Question?>(null) }
     var answered by remember { mutableStateOf(List(totalQuestions) { false }) }
     var teamScores by remember { mutableStateOf(listOf(0, 0, 0)) }
+    var currentQuestionIndex by remember { mutableStateOf(-1) }
 
     val themes = game.rounds.firstOrNull()?.themes ?: emptyList()
 
     Box(modifier = Modifier.fillMaxSize()) {
         SimpleBackgroundScreen()
+
         if (showQuestion) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
                 RenderQuestion(currentQuestion)
+
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(top = 300.dp),
+                    horizontalArrangement = Arrangement.spacedBy(32.dp)
+                ) {
+                    // Кнопки команд для начисления очков
+                    for (i in 0 until 3) {
+                        Button(
+                            onClick = {
+                                if (currentQuestion != null && currentQuestionIndex >= 0) {
+                                    teamScores = teamScores.toMutableList().also { it[i] += currentQuestion!!.points }
+                                    answered = answered.toMutableList().also { it[currentQuestionIndex] = true }
+                                    showQuestion = false
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
+                        ) {
+                            Text("Команда ${i + 1} +${currentQuestion?.points ?: 0}")
+                        }
+                    }
+                }
+
                 Button(
                     onClick = { showQuestion = false },
                     modifier = Modifier
@@ -236,11 +262,7 @@ fun QuestionSelectionScreen(game: Game) {
                         .width(200.dp)
                         .height(60.dp)
                         .border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(0.dp)),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.LightGray,
-                        contentColor = MaterialTheme.colorScheme.onBackground
-                    ),
-                    shape = RoundedCornerShape(0.dp)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
                 ) {
                     Text("Назад", fontSize = 24.sp)
                 }
@@ -251,10 +273,11 @@ fun QuestionSelectionScreen(game: Game) {
                 currentQuestion = themes.getOrNull(r)?.questions?.getOrNull(c)
                 if (currentQuestion != null) {
                     showQuestion = true
-                    answered = answered.toMutableList().also { it[index] = true }
+                    currentQuestionIndex = index
                 }
             }
         }
+
         TeamScoreBar(
             modifier = Modifier.align(Alignment.BottomCenter),
             teamScores = teamScores,
@@ -263,4 +286,3 @@ fun QuestionSelectionScreen(game: Game) {
         )
     }
 }
-
