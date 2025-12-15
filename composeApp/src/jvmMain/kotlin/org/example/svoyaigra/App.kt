@@ -213,71 +213,103 @@ fun TeamScoreBar(
 
 @Composable
 fun QuestionSelectionScreen(game: Game) {
-    val rows = game.rounds.firstOrNull()?.themes?.size ?: 0
+    val rows = 6
     val cols = 5
     val totalQuestions = rows * cols
 
     var showQuestion by remember { mutableStateOf(false) }
     var currentQuestion by remember { mutableStateOf<Question?>(null) }
     var answered by remember { mutableStateOf(List(totalQuestions) { false }) }
-    var teamScores by remember { mutableStateOf(listOf(0, 0, 0)) }
     var currentQuestionIndex by remember { mutableStateOf(-1) }
-
-    val themes = game.rounds.firstOrNull()?.themes ?: emptyList()
+    var teamScores by remember { mutableStateOf(listOf(0, 0, 0)) }
 
     Box(modifier = Modifier.fillMaxSize()) {
+
+        // Фон
         SimpleBackgroundScreen()
 
-        if (showQuestion) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-                RenderQuestion(currentQuestion)
+        // Сетка с линиями и кнопками вопросов
+        if (!showQuestion) {
+            Column(modifier = Modifier.fillMaxSize().padding(bottom = 225.dp)) {
+                game.rounds.firstOrNull()?.themes?.forEachIndexed { r, theme ->
+                    Row(modifier = Modifier.fillMaxWidth().height(106.dp), verticalAlignment = Alignment.CenterVertically) {
+                        // Тема
+                        Text(
+                            text = theme.name,
+                            modifier = Modifier.width(445.dp).padding(start = 16.dp),
+                            fontSize = 28.sp,
+                            fontFamily = FontFamily.Serif,
+                            color = Color.Black
+                        )
 
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(top = 300.dp),
-                    horizontalArrangement = Arrangement.spacedBy(32.dp)
-                ) {
-                    // Кнопки команд для начисления очков
-                    for (i in 0 until 3) {
-                        Button(
-                            onClick = {
-                                if (currentQuestion != null && currentQuestionIndex >= 0) {
-                                    teamScores = teamScores.toMutableList().also { it[i] += currentQuestion!!.points }
-                                    answered = answered.toMutableList().also { it[currentQuestionIndex] = true }
-                                    showQuestion = false
+                        // Вопросы
+                        theme.questions.forEachIndexed { c, question ->
+                            val index = r * cols + c
+                            if (answered.getOrNull(index) == true) {
+                                Spacer(modifier = Modifier.width(148.dp).height(106.dp))
+                            } else {
+                                Button(
+                                    onClick = {
+                                        currentQuestion = question
+                                        currentQuestionIndex = index
+                                        showQuestion = true
+                                        answered = answered.toMutableList().also { it[index] = true }
+                                    },
+                                    modifier = Modifier.width(148.dp).height(106.dp),
+                                    shape = RoundedCornerShape(0.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.Transparent,
+                                        contentColor = MaterialTheme.colorScheme.onBackground
+                                    ),
+                                    contentPadding = PaddingValues(0.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "${question.points}",
+                                            fontSize = 30.sp,
+                                            fontFamily = FontFamily.Serif,
+                                            color = Color.Black
+                                        )
+                                    }
                                 }
-                            },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
-                        ) {
-                            Text("Команда ${i + 1} +${currentQuestion?.points ?: 0}")
+                            }
                         }
                     }
                 }
+            }
 
+            // Линии поверх кнопок
+            QuestionLineGridDraw()
+        }
+
+        // Экран вопроса
+        if (showQuestion && currentQuestion != null) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                RenderQuestion(currentQuestion)
+
+                // Кнопка "Назад"
                 Button(
                     onClick = { showQuestion = false },
                     modifier = Modifier
-                        .absoluteOffset(x = (-480).dp, y = (-240).dp)
+                        .align(Alignment.TopStart)
+                        .padding(16.dp)
                         .width(200.dp)
-                        .height(60.dp)
-                        .border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(0.dp)),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
+                        .height(60.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.LightGray,
+                        contentColor = Color.Black
+                    ),
+                    shape = RoundedCornerShape(0.dp)
                 ) {
                     Text("Назад", fontSize = 24.sp)
                 }
             }
-        } else {
-            QuestionLineGrid(rows = rows, cols = cols)
-            ButtonGridWithLabels(themes = themes, answered = answered) { r, c, index ->
-                currentQuestion = themes.getOrNull(r)?.questions?.getOrNull(c)
-                if (currentQuestion != null) {
-                    showQuestion = true
-                    currentQuestionIndex = index
-                }
-            }
         }
 
+        // Панель очков команд
         TeamScoreBar(
             modifier = Modifier.align(Alignment.BottomCenter),
             teamScores = teamScores,
@@ -285,4 +317,46 @@ fun QuestionSelectionScreen(game: Game) {
             onScoreDecrease = { i -> teamScores = teamScores.toMutableList().also { it[i] -= 100 } }
         )
     }
+}
+
+@Composable
+fun QuestionLineGridDraw() {
+    val rows = 6
+    val cols = 5
+    val bottomPanelHeight = 225.dp
+    val leftMargin = 445.dp // ширина колонки с названиями тем
+
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .drawBehind {
+            val density = this@drawBehind
+            val rectHeight = bottomPanelHeight.toPx()
+            val availableHeight = size.height - rectHeight
+
+            val rowHeight = availableHeight / rows
+
+            // Горизонтальные линии
+            for (i in 1 until rows) {
+                val y = rowHeight * i
+                drawLine(
+                    color = Color.White,
+                    strokeWidth = 3f,
+                    start = Offset(0f, y),
+                    end = Offset(size.width, y)
+                )
+            }
+
+            // Вертикальные линии
+            val buttonWidthPx = 148.dp.toPx() // теперь внутри drawBehind корректно
+            for (i in 0..cols) { // 6 линий
+                val x = leftMargin.toPx() + buttonWidthPx * i
+                drawLine(
+                    color = Color.White,
+                    strokeWidth = 3f,
+                    start = Offset(x, 0f),
+                    end = Offset(x, availableHeight)
+                )
+            }
+        }
+    )
 }
